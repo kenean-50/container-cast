@@ -17,7 +17,7 @@ type Client interface {
 }
 
 type Session interface {
-	Run() error
+	Run(cmd string) ([]byte, error)
 	Upload() error
 	Download() error
 	Interactive() error

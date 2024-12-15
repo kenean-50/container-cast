@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
@@ -19,13 +21,14 @@ type clientConfig struct {
 	timeout        time.Duration
 	callback       ssh.HostKeyCallback
 	bannerCallback ssh.BannerCallback
+	logger         zerolog.Logger
 }
 
-func NewClient(host, user string, port int, auth AuthMethod) (*clientConfig, error) {
+func NewClient(host, user string, port int, auth AuthMethod) *clientConfig {
 	callback, err := defaultKnownHosts()
 
 	if err != nil {
-		return nil, err
+		log.Fatal().Err(err).Msg("failed to get private key auth")
 	}
 
 	return &clientConfig{
@@ -34,17 +37,32 @@ func NewClient(host, user string, port int, auth AuthMethod) (*clientConfig, err
 		port:     port,
 		user:     user,
 		callback: callback,
-	}, nil
+		logger: log.
+			With().
+			Str("actor", "ssh").
+			Logger(),
+	}
 }
 
-func (r *clientConfig) Connect() (*ssh.Client, error) {
-	return ssh.Dial("tcp", net.JoinHostPort(r.host, fmt.Sprint(r.port)), &ssh.ClientConfig{
+func (r *clientConfig) Connect() *ssh.Client {
+
+	conn, err := ssh.Dial("tcp", net.JoinHostPort(r.host, fmt.Sprint(r.port)), &ssh.ClientConfig{
 		User:            r.user,
 		Auth:            r.auth,
 		Timeout:         r.timeout,
 		HostKeyCallback: r.callback,
 		BannerCallback:  r.bannerCallback,
 	})
+
+	if err != nil {
+		r.logger.
+			Fatal().
+			Str("status", "failed to connect").
+			Str("reason", ""+err.Error()).
+			Send()
+	}
+
+	return conn
 }
 
 // todo: add checks for new hosts and save them

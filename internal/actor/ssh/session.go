@@ -3,26 +3,38 @@ package ssh
 import (
 	"context"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
 )
 
 type session struct {
-	sess *ssh.Session
-	env  []string
-	ctx  context.Context
+	sess   *ssh.Session
+	env    []string
+	ctx    context.Context
+	logger zerolog.Logger
 }
 
-func NewSession(client *ssh.Client) (*session, error) {
+func NewSession(client *ssh.Client) *session {
+	if client == nil {
+		log.Fatal().Msg("failed to create SSH session")
+	}
 
 	sess, err := client.NewSession()
 	if err != nil {
-		return nil, err
+		log.Fatal().Msg("failed to create SSH session")
 	}
+	// defer client.Close()
+
 	return &session{
 		sess: sess,
 		ctx:  context.Background(),
 		// env:  env,
-	}, nil
+		logger: log.
+			With().
+			Str("actor", "ssh").
+			Logger(),
+	}
 }
 
 // todo: set env for the session
@@ -36,7 +48,7 @@ func NewSession(client *ssh.Client) (*session, error) {
 // 	return nil
 // }
 
-func (r *session) Excute(cmd string) ([]byte, error) {
+func (r *session) Run(cmd string) ([]byte, error) {
 	// if err := r.SetEnv(); err != nil {
 	// 	return nil, err
 	// }
