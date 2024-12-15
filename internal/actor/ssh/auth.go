@@ -8,52 +8,76 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type authConfig struct {
-	password   string
-	privateKey string
+type AuthOption interface {
+	apply(*authOptions)
+}
+
+type authOptions struct {
+	password   passwordOption
+	privateKey privateKeyOption
 	logger     zerolog.Logger
 }
 
-func NewAuthPassword(password string) *authConfig {
-	return &authConfig{
+type passwordOption struct {
+	password string
+}
+
+type privateKeyOption struct {
+	privateKey string
+}
+
+func (p privateKeyOption) apply(opts *authOptions) {
+	opts.privateKey = p
+}
+
+func (p passwordOption) apply(opts *authOptions) {
+	opts.password = p
+}
+
+func NewAuth(opts ...AuthOption) *authOptions {
+	a := &authOptions{
+		logger: log.
+			With().
+			Str("actor", "ssh").
+			Logger(),
+	}
+	for _, opt := range opts {
+		opt.apply(a)
+	}
+	return a
+}
+
+func WithPassword(password string) AuthOption {
+	return passwordOption{
 		password: password,
-		logger: log.
-			With().
-			Str("actor", "ssh").
-			Logger(),
 	}
 }
 
-func NewAuthPrivateKey(privateKey string) *authConfig {
-	return &authConfig{
+func WithPrivateKey(privateKey string) AuthOption {
+	return privateKeyOption{
 		privateKey: privateKey,
-		logger: log.
-			With().
-			Str("actor", "ssh").
-			Logger(),
 	}
 }
 
-func (r *authConfig) Password() AuthMethod {
-	return AuthMethod{
-		ssh.Password(r.password),
-	}
-}
-
-func (r *authConfig) PrivateKey() AuthMethod {
-	signer, err := sign(r.privateKey)
-
-	if err != nil {
-		r.logger.
-			Fatal().
-			Str("status", "failed to get private key auth").
-			Str("reason", ""+err.Error()).
-			Send()
+func (r *authOptions) AuthMethod() AuthMethod {
+	var methods []ssh.AuthMethod
+	if r.password.password != "" {
+		methods = append(methods, ssh.Password(r.password.password))
 	}
 
-	return AuthMethod{
-		ssh.PublicKeys(signer),
+	if r.privateKey.privateKey != "" {
+		signer, err := sign(r.privateKey.privateKey)
+		if err != nil {
+			r.logger.
+				Fatal().
+				Str("status", "failed to get private key auth").
+				Str("reason", ""+err.Error()).
+				Send()
+		}
+		methods = append(methods, ssh.PublicKeys(signer))
 	}
+
+	return methods
 }
 
 func sign(PrivateKey string) (ssh.Signer, error) {
