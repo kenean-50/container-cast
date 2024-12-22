@@ -1,32 +1,35 @@
 package cli
 
 import (
-	// "fmt"
-
-	"github.com/spf13/cobra"
+	"github.com/kenean-50/vm-container-manager/internal/domain/deploy"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
 )
 
 type cobraCli struct {
-	name          string
-	Command       *cobra.Command
-	logger        zerolog.Logger
+	name    string
+	command *cobra.Command
+	logger  zerolog.Logger
 }
 
-func NewCobraCli(name string) *cobraCli {
+func NewCobraCli(name string, deploy deploy.DeployService) *cobraCli {
 
 	var command = &cobra.Command{Use: name}
 
-  command.AddCommand(ValidateCommand())
-	command.AddCommand(RunCommand())
+	command.AddCommand(ValidateCommand())
+	command.AddCommand(DeployCommand(deploy))
 
 	return &cobraCli{
-		name: name,
-		Command: command,
+		name:    name,
+		command: command,
 		logger: log.
 			With().
 			Str("actor", "cobra").
 			Logger(),
 	}
+}
+
+func (r *cobraCli) Execute() error {
+	return r.command.Execute()
 }
