@@ -30,10 +30,10 @@ func (i imageOptions) apply(opts *containerOptions) {
 	opts.image = i
 }
 
-func WithImage(name, version string) ContainerOptions {
+func WithImage(name, tag string) ContainerOptions {
 	return imageOptions{
-		name:    name,
-		version: version,
+		name: name,
+		tag:  tag,
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 type Container interface {
-	Run(image string, opts ...ContainerOptions) *containerOptions
+	Run() string
 	Build()
 	Start()
 	Stop()
@@ -33,8 +33,8 @@ type containerOptions struct {
 }
 
 type imageOptions struct {
-	name    string
-	version string
+	name string
+	tag  string
 }
 
 // type clientOptions struct {
