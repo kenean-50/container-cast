@@ -1,15 +1,15 @@
 package deploy
 
 import (
-	"github.com/kenean-50/vm-container-manager/internal/actor/manifest"
+	"github.com/kenean-50/vm-container-manager/internal/actor/config"
 )
 
 type DeployConfig struct {
-	manifest *manifest.Manifest
+	config *config.Config
 }
 
-func NewDeployModule(manifest *manifest.Manifest) *DeployConfig {
+func NewDeployModule(config *config.Config) *DeployConfig {
 	return &DeployConfig{
-		manifest: manifest,
+		config: config,
 	}
 }

@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/kenean-50/vm-container-manager/internal/actor/manifest"
-
 	"github.com/docker/docker/client"
+	"github.com/kenean-50/vm-container-manager/internal/actor/config"
 	"github.com/kenean-50/vm-container-manager/internal/actor/container"
 	"github.com/kenean-50/vm-container-manager/internal/actor/ssh"
 	"github.com/rs/zerolog/log"
@@ -16,10 +15,10 @@ import (
 func (d *DeployConfig) Apply() {
 	var wg sync.WaitGroup
 
-	for _, server := range d.manifest.Values.Servers {
+	for _, server := range d.config.Values.Servers {
 		wg.Add(1)
 
-		go func(server manifest.Server) {
+		go func(server config.Server) {
 			defer wg.Done()
 
 			auth := ssh.NewAuth(ssh.WithPrivateKey(server.PrivateKeyPath)).AuthMethod()
@@ -42,12 +41,12 @@ func (d *DeployConfig) Apply() {
 
 			var containerWg sync.WaitGroup
 
-			for name, service := range d.manifest.Values.Services {
+			for name, service := range d.config.Values.Services {
 				containerWg.Add(1)
 
-				go func(name string, service manifest.Service) {
+				go func(name string, service config.Service) {
 					defer containerWg.Done()
-					runContainer(dClient, service.Image, name)
+					runContainer(dClient, service.Image, name, service.Ports)
 				}(name, service)
 			}
 
@@ -58,11 +57,12 @@ func (d *DeployConfig) Apply() {
 	wg.Wait()
 }
 
-func runContainer(dClient *client.Client, imageName, imageTag string) {
+func runContainer(dClient *client.Client, imageName, imageTag string, ports []string) {
 	con := container.NewContainer(
 		context.Background(),
 		container.WithClient(dClient),
 		container.WithImage(imageName, imageTag),
+		container.WithPort(ports),
 	)
 	out := con.Run()
 	fmt.Println(out)
