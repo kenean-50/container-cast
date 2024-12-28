@@ -4,24 +4,9 @@ import (
 	"fmt"
 
 	"github.com/docker/docker/client"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
 )
-
-type ClientOptions interface {
-	apply(*clientOptions)
-}
-
-type clientOptions struct {
-	ssh    sshOptions
-	docker *client.Client
-	logger zerolog.Logger
-}
-
-type sshOptions struct {
-	client *ssh.Client
-}
 
 func NewClient(opts ...ClientOptions) *clientOptions {
 	c := &clientOptions{

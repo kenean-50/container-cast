@@ -3,7 +3,9 @@ package container
 import (
 	"context"
 
+	"github.com/docker/docker/client"
 	"github.com/rs/zerolog"
+	"golang.org/x/crypto/ssh"
 )
 
 type Container interface {
@@ -22,14 +24,27 @@ type ContainerOptions interface {
 type containerOptions struct {
 	ctx    context.Context
 	logger zerolog.Logger
-	image  imageOptions
 	client clientOptions
-	// ssh    sshOptions
-	// ports  []portOptions
+	image  imageOptions
+	ports  portOptions
 	// networks []networkOption
 	// registry registryOption
 	// configs  []configOption
 	// secrets  sshOptions
+}
+
+type ClientOptions interface {
+	apply(*clientOptions)
+}
+
+type clientOptions struct {
+	ssh    sshOptions
+	docker *client.Client
+	logger zerolog.Logger
+}
+
+type sshOptions struct {
+	client *ssh.Client
 }
 
 type imageOptions struct {
@@ -37,18 +52,16 @@ type imageOptions struct {
 	tag  string
 }
 
-// type clientOptions struct {
-// 	client *client.Client
-// }
-
-// type sshOptions struct {
-// 	client *ssh.Client
-// }
-
-type portOptions struct {
+type PortMapping struct {
 	containerPort string
 	hostPort      string
 }
+
+type portOptions []PortMapping
+
+// type clientOptions struct {
+// 	client *client.Client
+// }
 
 // type networkOption struct {
 // 	network string

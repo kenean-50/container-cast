@@ -2,9 +2,12 @@ package container
 
 import (
 	"context"
+	"strings"
 
+	"github.com/docker/docker/api/types/container"
 	dcontainer "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/rs/zerolog/log"
 )
 
@@ -30,6 +33,10 @@ func (i imageOptions) apply(opts *containerOptions) {
 	opts.image = i
 }
 
+func (p portOptions) apply(opts *containerOptions) {
+	opts.ports = p
+}
+
 func WithImage(name, tag string) ContainerOptions {
 	return imageOptions{
 		name: name,
@@ -43,12 +50,43 @@ func WithClient(client *client.Client) ContainerOptions {
 	}
 }
 
+func WithPort(ports []string) ContainerOptions {
+	var pm []PortMapping
+
+	for _, p := range ports {
+		parts := strings.Split(p, ":")
+		if len(parts) != 2 {
+			panic("invalid port format, expected 'host:container'")
+		}
+		pm = append(pm, PortMapping{
+			containerPort: parts[1],
+			hostPort:      parts[0],
+		})
+	}
+
+	return portOptions(pm)
+}
+
 func (c containerOptions) Run() string {
 	config := &dcontainer.Config{
 		Image: c.image.name,
 	}
 
-	resp, err := c.client.docker.ContainerCreate(c.ctx, config, nil, nil, nil, "")
+	portBindings := nat.PortMap{}
+	for _, pm := range c.ports {
+		portBindings[nat.Port(pm.containerPort+"/tcp")] = []nat.PortBinding{
+			{
+				HostIP:   "",
+				HostPort: pm.hostPort,
+			},
+		}
+	}
+
+	hostConfig := &container.HostConfig{
+		PortBindings: portBindings,
+	}
+
+	resp, err := c.client.docker.ContainerCreate(c.ctx, config, hostConfig, nil, nil, "")
 	err = c.client.docker.ContainerStart(c.ctx, resp.ID, dcontainer.StartOptions{})
 
 	if err != nil {
