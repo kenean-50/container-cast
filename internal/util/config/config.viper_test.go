@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/kenean-50/container-cast/internal/util/config"
 	"github.com/stretchr/testify/assert"
-	"github.com/kenean-50/vm-container-manager/internal/util/config"
 )
 
 func TestGetConfig(t *testing.T) {

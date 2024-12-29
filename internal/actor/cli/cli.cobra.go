@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/kenean-50/vm-container-manager/internal/domain/deploy"
+	"github.com/kenean-50/container-cast/internal/domain/deploy"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"

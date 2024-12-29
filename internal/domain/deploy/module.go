@@ -1,7 +1,7 @@
 package deploy
 
 import (
-	"github.com/kenean-50/vm-container-manager/internal/actor/config"
+	"github.com/kenean-50/container-cast/internal/actor/config"
 )
 
 type DeployConfig struct {

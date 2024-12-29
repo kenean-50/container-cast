@@ -1,4 +1,4 @@
-module github.com/kenean-50/vm-container-manager
+module github.com/kenean-50/container-cast
 
 go 1.23.3
 

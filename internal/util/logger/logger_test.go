@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/kenean-50/container-cast/internal/util/logger"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
-	"github.com/kenean-50/vm-container-manager/internal/util/logger"
 )
 
 func TestLogger(t *testing.T) {

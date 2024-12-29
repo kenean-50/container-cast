@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/kenean-50/vm-container-manager/internal/util/config"
+	"github.com/kenean-50/container-cast/internal/util/config"
 	"github.com/rs/zerolog/log"
 )
 

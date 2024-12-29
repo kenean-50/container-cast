@@ -6,9 +6,9 @@ import (
 	"sync"
 
 	"github.com/docker/docker/client"
-	"github.com/kenean-50/vm-container-manager/internal/actor/config"
-	"github.com/kenean-50/vm-container-manager/internal/actor/container"
-	"github.com/kenean-50/vm-container-manager/internal/actor/ssh"
+	"github.com/kenean-50/container-cast/internal/actor/config"
+	"github.com/kenean-50/container-cast/internal/actor/container"
+	"github.com/kenean-50/container-cast/internal/actor/ssh"
 	"github.com/rs/zerolog/log"
 )
 

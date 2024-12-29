@@ -4,11 +4,11 @@ import (
 	"os"
 	"runtime/pprof"
 
-	"github.com/kenean-50/vm-container-manager/internal/actor/cli"
-	"github.com/kenean-50/vm-container-manager/internal/actor/config"
-	"github.com/kenean-50/vm-container-manager/internal/domain/deploy"
-	sConfig "github.com/kenean-50/vm-container-manager/internal/util/config"
-	"github.com/kenean-50/vm-container-manager/internal/util/logger"
+	"github.com/kenean-50/container-cast/internal/actor/cli"
+	"github.com/kenean-50/container-cast/internal/actor/config"
+	"github.com/kenean-50/container-cast/internal/domain/deploy"
+	sConfig "github.com/kenean-50/container-cast/internal/util/config"
+	"github.com/kenean-50/container-cast/internal/util/logger"
 	"github.com/rs/zerolog/log"
 )
 
