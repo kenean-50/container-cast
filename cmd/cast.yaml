@@ -1,0 +1,66 @@
+# include:
+#   - path: ../commons/compose.yaml
+#     project_directory: ..
+#     env_file: ../another/.env
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+
+    # build:
+    #   context: backend
+    #   args:
+    #     - GIT_COMMIT=cdc3b19
+    #   dockerfile: ../backend.Dockerfile
+    # ports:
+    #   - "80:80"
+    # networks:
+    #   - net-1
+    #   - net-2
+    # configs:
+    #   - httpd-config
+    # secrets:
+    #   - server-certificate
+    # profiles:
+    #   - test
+    # deploy:
+    #   # mode: replicated
+    #   # replicas: 2
+    #   endpoint_mode: vip
+    #   resources:
+    #     limits:
+    #       cpus: "0.50"
+    #       memory: 50M
+    #     reservations:
+    #       cpus: "0.25"
+    #       memory: 20M
+
+# volumes:
+#   db-data:
+#     driver: flocker
+#     driver_opts:
+#       size: "10GiB"
+
+# configs:
+#   httpd-config:
+#     external: true
+
+# secrets:
+#   server-certificate:
+#     # external: true
+#     file: ./server.cert
+# secrets:
+#   token:
+#     environment: "OAUTH_TOKEN"
+networks:
+  net-1: {}
+  net-2: {}
+
+servers:
+  srv-1:
+    host: x.x.x.x
+    user: ubuntu
+    ssh_port: 22
+    private_key_path: .ssh/key.pem
+
