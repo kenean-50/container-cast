@@ -46,6 +46,7 @@ func (d *DeployConfig) Apply() {
 
 				go func(name string, service config.Service) {
 					defer containerWg.Done()
+
 					runContainer(dClient, service.Image, name, service.Ports)
 				}(name, service)
 			}
@@ -60,10 +61,12 @@ func (d *DeployConfig) Apply() {
 func runContainer(dClient *client.Client, imageName, imageTag string, ports []string) {
 	con := container.NewContainer(
 		context.Background(),
-		container.WithClient(dClient),
+		container.WithDockerClient(dClient),
 		container.WithImage(imageName, imageTag),
 		container.WithPort(ports),
 	)
+
+	con.PullImage(imageName)
 	out := con.Run()
 	fmt.Println(out)
 }

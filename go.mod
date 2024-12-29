@@ -3,7 +3,7 @@ module github.com/kenean-50/vm-container-manager
 go 1.23.3
 
 require (
-	github.com/docker/docker v27.4.0+incompatible
+	github.com/docker/docker v27.4.1+incompatible
 	github.com/gliderlabs/ssh v0.3.8
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1

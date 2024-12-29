@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/docker/docker/api/types/container"
 	dcontainer "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/rs/zerolog/log"
@@ -44,7 +44,7 @@ func WithImage(name, tag string) ContainerOptions {
 	}
 }
 
-func WithClient(client *client.Client) ContainerOptions {
+func WithDockerClient(client *client.Client) ContainerOptions {
 	return clientOptions{
 		docker: client,
 	}
@@ -82,13 +82,20 @@ func (c containerOptions) Run() string {
 		}
 	}
 
-	hostConfig := &container.HostConfig{
+	hostConfig := &dcontainer.HostConfig{
 		PortBindings: portBindings,
 	}
 
 	resp, err := c.client.docker.ContainerCreate(c.ctx, config, hostConfig, nil, nil, "")
-	err = c.client.docker.ContainerStart(c.ctx, resp.ID, dcontainer.StartOptions{})
+	if err != nil {
+		c.logger.
+			Fatal().
+			Str("status", "failed to run container").
+			Str("reason", ""+err.Error()).
+			Send()
+	}
 
+	err = c.client.docker.ContainerStart(c.ctx, resp.ID, dcontainer.StartOptions{})
 	if err != nil {
 		c.logger.
 			Fatal().
@@ -97,4 +104,17 @@ func (c containerOptions) Run() string {
 			Send()
 	}
 	return resp.ID
+}
+
+func (c containerOptions) PullImage(imageName string) {
+	reader, err := c.client.docker.ImagePull(c.ctx, imageName, image.PullOptions{})
+
+	if err != nil {
+		c.logger.
+			Fatal().
+			Str("status", "failed to pull image").
+			Str("reason", ""+err.Error()).
+			Send()
+	}
+	reader.Close()
 }
